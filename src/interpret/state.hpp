@@ -28,8 +28,9 @@ public:
 	//
 	std::unordered_map<std::string, Value> vars;
 
-	// bytecode doesn't have registers
+	// stack based
 	std::vector<Value> stack;
+
 
 };
 

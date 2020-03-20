@@ -10,7 +10,7 @@
 #include <iostream>			// debugging
 
 #include "../libs/json.hpp"
-
+#include "block.hpp"
 
 // might switch one day
 using json_t = nlohmann::json;
@@ -23,11 +23,13 @@ public:
 		EMPTY,
 		JSON,
 		REF,
+		BLOCK,
 	} type;
 
 	union {
 		json_t* j;
 		std::shared_ptr<Value> ref;
+		Block* b;
 	} v;
 
 	static std::shared_ptr<Value> null;

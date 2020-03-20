@@ -5,6 +5,9 @@
 #ifndef JSON_LISP_OPERATOR_HPP
 #define JSON_LISP_OPERATOR_HPP
 
+#include <vector>
+#include <string>
+
 struct Operator {
 
 	// used in bytecode text representation
@@ -15,8 +18,7 @@ struct Operator {
 	// ie - "+"
 	const char* symbol;
 
-	
-
+	const std::vector<std::pair<std::string, std::string>> args;
 
 };
 
