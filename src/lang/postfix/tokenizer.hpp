@@ -10,19 +10,21 @@
 struct Token {
 	enum t {
 		OPERATOR,
-		CONTAINER,
 		STRING,
 		PAREN,
 		BRACE,
 		BRACKET,
+		COMMA,
+		COLON,
 		NUM,
-		NONE,
+		DOT,
+		END,
+		ERR,
 	} type;
 	std::string token;
 };
 
 typedef struct Token Token;
-
 
 Token tokenizer(const std::string& buff, size_t& offset);
 
