@@ -6,26 +6,24 @@
 #define JSON_LISP_TOKENIZER_HPP
 
 #include <string>
+#include <vector>
 
 struct Token {
 	enum t {
 		OPERATOR,
+		IDENTIFIER,
 		STRING,
-		PAREN,
-		BRACE,
-		BRACKET,
-		COMMA,
-		COLON,
-		NUM,
-		DOT,
+		NUMBER,
 		END,
-		ERR,
+		ERROR,
 	} type;
 	std::string token;
 };
 
 typedef struct Token Token;
 
-Token tokenizer(const std::string& buff, size_t& offset);
+
+std::vector<struct Token> tokenize_stream(std::istream& in);
+
 
 #endif //JSON_LISP_TOKENIZER_HPP

@@ -23,7 +23,7 @@ public:
 		EMPTY,
 		JSON,
 		REF,
-		BLOCK,
+		MACRO,
 	} type;
 
 	union {
