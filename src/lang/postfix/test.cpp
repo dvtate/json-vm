@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "tokenizer.hpp"
+#include "lex.hpp"
 
 int main() {
 	for (;;) {

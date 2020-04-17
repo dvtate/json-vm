@@ -18,7 +18,7 @@ struct Operator {
 	// ie - "+"
 	const char* symbol;
 
-	const std::vector<std::pair<std::string, std::string>> args;
+
 
 };
 

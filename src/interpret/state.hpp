@@ -25,10 +25,9 @@ class State {
 public:
 	typedef State_Exit Exit;
 
-	//
+	// labels
 	std::unordered_map<std::string, Value> vars;
 
-	// stack based
 	std::vector<Value> stack;
 
 

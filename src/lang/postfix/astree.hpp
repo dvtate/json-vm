@@ -11,7 +11,7 @@
 
 #include <unordered_map>
 
-#include "tokenizer.hpp"
+#include "lex.hpp"
 
 class SyntaxTree {
 public:
