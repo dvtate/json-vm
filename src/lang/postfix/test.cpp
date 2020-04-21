@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "lex.hpp"
-
+#include "parse.hpp"
 int main() {
 	for (;;) {
 		std::string inp;
@@ -11,5 +11,7 @@ int main() {
 		for (Token tok : toks) {
 			std::cout <<'\t' <<tok.type <<':' <<tok.token <<std::endl;
 		}
+		parse(toks);
+
 	}
 }

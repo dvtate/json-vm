@@ -181,8 +181,10 @@ Token get_token(const T& buff, size_t& i, const F read) {
 
 		if (buff[i] == '*') {
 			i++;
-			end_multi_comment(buff, i, read);
-			return get_token(buff, i, read);
+			if (end_multi_comment(buff, i, read))
+				return get_token(buff, i, read);
+			else
+				return { Token::t::ERROR, "unterminated multiline comment (missing */)" };
 		}
 
 		// operator that starts with /
@@ -192,15 +194,15 @@ Token get_token(const T& buff, size_t& i, const F read) {
 	// string literal
 	if (c == '\'' || c == '"') {
 		const size_t start = i;
-		if (end_str(buff, i, read, c)) {
-			i++;
-			return {Token::t::STRING, stl_substr(buff, start, i) };
-		} else
-			return { Token::t::ERROR, "Unterminated string" };
+		if (end_str(buff, i, read, c))
+			return {Token::t::STRING, stl_substr(buff, start, ++i) };
+		else
+			return { Token::t::ERROR, (std::string("Unterminated string literal (missing ") + c) + ")" };
+
 	}
 
 	// operator
-	const char operators[] = "(){}[].,;:=|&+*-/%$#@!?^<>\\";
+	const char operators[] = "(){}[].,;:=|&+*-/%#@!?^<>\\";
 	if (strcont(operators, c)) {
 		i++;
 		return {Token::t::OPERATOR, std::string() + c};
@@ -234,9 +236,17 @@ std::vector<struct Token> tokenize_stream(std::istream& in) {
 	std::vector<Token> ret;
 
 	struct Token t;
-	size_t i = 0;
+
+	size_t i = 0; // working index for lex
+	size_t pos = 0; // used for getting line numbers for error messages
+
 	for (; ;) {
+		const size_t prev_i = i;
 		t = get_token(buff, i, read);
+		t.pos = prev_i;
+		pos += i - prev_i;
+
+
 		if (t.type == Token::t::END) {
 
 			// try to read next line
@@ -245,10 +255,11 @@ std::vector<struct Token> tokenize_stream(std::istream& in) {
 			read();
 			if (buff.empty())
 				return ret;
+
 		} else if (t.type == Token::t::ERROR) {
 			return std::vector<Token>({ t });
 		} else {
-			std::cout <<"new tok: " <<t.type <<':' <<t.token <<std::endl;
+			//std::cout <<"new tok: " <<t.type <<':' <<t.token <<std::endl;
 			ret.emplace_back(t);
 		}
 	}
