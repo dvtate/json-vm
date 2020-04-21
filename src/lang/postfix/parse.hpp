@@ -14,21 +14,27 @@
 struct AST {
 	enum NodeType {
 		STATEMENT,   // marked with semicolon so that it's not used as an operand
+		STATEMENT_SERIES,
+		END_STATEMENT, // semicolon
 
 		// operand types
-		OPERATION, // parsed operator args put in this->members
-		EXPRESSION,
-		NUM_LITERAL,
-		STR_LITERAL,
-		ENUM_LITERAL,
-		IDENTIFIER,
-		MACRO,	// macro literal
-		OBJECT,	//
-		LIST,
+		OPERATION = 2, // parsed operator args put in this->members
+		EXPRESSION = 3,
+		NUM_LITERAL = 4,
+		STR_LITERAL = 5,
+		ENUM_LITERAL = 6,
+		IDENTIFIER = 7,
+		MACRO = 8,	// macro literal
+		OBJECT = 9,	//
+		LIST = 10,
 
-		CONT_OPEN,
+		// containers
+		MACRO_OPEN,
+		LIST_OPEN,
+		PAREN_OPEN,
 		CONT_CLOSE,
 
+		// separators
 		KV_PAIR,
 		COMMA_SERIES,
 
@@ -36,9 +42,6 @@ struct AST {
 		MEMBER_REQUEST, // bracket operators
 		MACRO_INVOKE,
 
-		END_STATEMENT,
-		COMMA_SERIES,
-		STATEMENT_SERIES,
 		BRK_EXPR, // bracket operator
 		PAREN_EXPR, // temporary, used to add clarity to macro calls
 		OPERATOR,  // un-parsed operator

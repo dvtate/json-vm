@@ -1,4 +1,4 @@
-//
+/
 // Created by tate on 16-04-20.
 //
 
@@ -45,9 +45,18 @@ std::unordered_map<std::string, signed char> op_prec = {
 		{ ")", 0 },
 };
 
+
+
 std::vector<std::string> kw_literals = {
 		"null", "empty", "true", "false",
 };
+
+
+static const empty_token = { .token = "", .type = Token::t::EMPTY };
+
+static inline bool isOperand(const AST& n) {
+	return n.type > AST::NodeType::OPERATION && n.type < AST::NodeType::LIST;
+}
 
 static inline AST next_node(const std::vector<Token>& tokens, size_t& i, std::vector<AST> stack) {
 
@@ -87,8 +96,9 @@ static inline AST next_node(const std::vector<Token>& tokens, size_t& i, std::ve
 		return { .type = AST::NodeType::STR_LITERAL, .token = t };
 	};
 	if (t.type == Token::t::IDENTIFIER) {
-
-	}
+		i++;
+		return { .type = AST::NodeType::IDENTIFIER, .token = t };
+	};
 
 
 	if (t.type == Token::t::OPERATOR) {
@@ -111,59 +121,54 @@ static inline AST next_node(const std::vector<Token>& tokens, size_t& i, std::ve
 
 }
 
+static inline bool has_multi_prefix_kw()
 
-static inline size_t prev_operator(std::vector<struct AST>& stack) {
+static inline int prev_operator(std::vector<struct AST>& stack) {
 	ssize_t ret = stack.size();
-	while (--ret >= 0) {
-		if (stack[ret].type == AST::NodeType::OPERATOR) {
+	while (--ret >= 0)
+		if (stack[ret].type == AST::NodeType::OPERATOR)
+			return ret;
 
-		}
+	return -1;
+}
+
+static inline void reduce_operator(std::vector<struct AST>& stack, const size_t i) {
+	// all operators are binary except: " neg", "let", and
+	const AST n = stack[i];
+	const std::string op = n.token.token;
+}
+
+static inline bool reduce_operators(std::vector<struct AST>& stack, const AST& n) {
+	if (!isOperand(n)) {
+		// if lookahead is an operator
+		const size_t i = prev_operator(stack);
+		const auto prec_p = op_prec.at(stack[i].token.token);
+		const auto prec_n = op_prec.at(n.token.token);
+		// reduce if it's lower precedence than prev operator
+		if (prec_n =< prec_p)
+			reduce_operator(stack, i);
+		return true;
+	}
+
+	// assumed end of expr, reduce it before adding more
+	if (n.type != AST::NodeType::LIST_OPEN && n.type != AST::PAREN_OPEN && isOperand(stack.back())) {
+		reduce_operator(stack, prev_operator(stack));
+		return true;
 	}
 }
 
-static inline bool reduce_operators(std::vector<struct AST>& stack, const Token& t) {
 
-	// for each operator
-	//    if next operator has higher precedence, go to next operator
-	//	  if next operator has lower or equal precedence, do reduce
+static inline bool reduce(const std::vector<struct Token>& tokens, size_t& i, std::vector<struct AST>& stack, const AST& n) {
+	if (stack.empty())
+		return false;
+
 	//
-
-	stack.push_back(t);
-	size_t op = next_operator(stack, 0);
-	size_t nop = next_operator(stack, op);
-	try {
-		while (nop < stack.size() && op < stack.size()) {
-			if (op_prec.at(stack[op].token.token) >= op_prec.at(stack[nop].token.token)) {
-
-				return true;
-			} else {
-				op = nop;
-				nop = next_operator(stack, op);
-			}
-		}
-
-	} catch (...) {
-		std::cerr <<"reduce_operators errr";
-	}
-
-	if (stack.back().pos = t.pos) {
-		stack.pop_back();
-	}
-}
+	reduce_operators(stack, n);
 
 
-static inline bool reduce(const std::vector<struct Token>& tokens, size_t& i, std::vector<struct AST>& stack) {
-	// lookahead token
-	Token t = tokens[i];
-	const AST last = stack[stack.size() - 1];
-	const l = stack.size() - 1;
 
-	if (stack[l - 1].token.token == "!" && stack)
 
-	// unary not
 
-	// try to reduce containers
-	for (int i = stack)
 }
 
 struct AST parse(const std::vector<struct Token>& tokens) {

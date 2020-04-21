@@ -16,6 +16,7 @@ struct Token {
 		NUMBER,
 		END,
 		ERROR,
+		EMPTY,
 	} type;
 	std::string token;
 
