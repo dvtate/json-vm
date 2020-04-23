@@ -3,7 +3,7 @@
 #include "lex.hpp"
 #include "parse.hpp"
 int main() {
-	for (;;) {
+	for (; ;) {
 		std::string inp;
 		std::getline(std::cin, inp);
 		std::stringstream ss(inp);
@@ -11,7 +11,7 @@ int main() {
 		for (Token tok : toks) {
 			std::cout <<'\t' <<tok.type <<':' <<tok.token <<std::endl;
 		}
-		parse(toks);
+		std::cout << debug_AST(parse(toks)) <<std::endl;
 
 	}
 }

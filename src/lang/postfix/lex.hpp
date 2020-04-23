@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 
-struct Token {
+
+class Token {
+public:
 	enum t {
 		OPERATOR,
 		IDENTIFIER,
@@ -22,8 +24,13 @@ struct Token {
 
 	// character index of the token in the scanned file
 	unsigned long long int pos;
-};
 
+
+	Token(const t _type, std::string&& _token):
+		type(_type), token(_token), pos(0) {}
+
+	Token() = default;
+};
 typedef struct Token Token;
 
 std::vector<struct Token> tokenize_stream(std::istream& in);

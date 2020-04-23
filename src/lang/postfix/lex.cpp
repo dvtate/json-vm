@@ -162,7 +162,7 @@ Token get_token(const T& buff, size_t& i, const F read) {
 		i++;
 
 	if (i == buff.size())
-		return { Token::t::END, "" };
+		return Token( Token::t::END, "" );
 
 	const char c = buff[i];
 
@@ -170,7 +170,7 @@ Token get_token(const T& buff, size_t& i, const F read) {
 		i++;
 		// eof
 		if (i == buff.size())
-			return { Token::t::OPERATOR, "/" };
+			return Token(Token::t::OPERATOR, "/" );
 
 		// line-comment
 		if (buff[i] == '/') {
@@ -184,20 +184,20 @@ Token get_token(const T& buff, size_t& i, const F read) {
 			if (end_multi_comment(buff, i, read))
 				return get_token(buff, i, read);
 			else
-				return { Token::t::ERROR, "unterminated multiline comment (missing */)" };
+				return Token( Token::t::ERROR, "unterminated multiline comment (missing */)" );
 		}
 
 		// operator that starts with /
-		return { Token::t::OPERATOR , std::string() + c };
+		return Token( Token::t::OPERATOR , std::string() + c );
 	}
 
 	// string literal
 	if (c == '\'' || c == '"') {
 		const size_t start = i;
 		if (end_str(buff, i, read, c))
-			return {Token::t::STRING, stl_substr(buff, start, ++i) };
+			return Token(Token::t::STRING, stl_substr(buff, start, ++i) );
 		else
-			return { Token::t::ERROR, (std::string("Unterminated string literal (missing ") + c) + ")" };
+			return Token( Token::t::ERROR, (std::string("Unterminated string literal (missing ") + c) + ")" );
 
 	}
 
@@ -205,24 +205,24 @@ Token get_token(const T& buff, size_t& i, const F read) {
 	const char operators[] = "(){}[].,;:=|&+*-/%#@!?^<>\\";
 	if (strcont(operators, c)) {
 		i++;
-		return {Token::t::OPERATOR, std::string() + c};
+		return Token(Token::t::OPERATOR, std::string() + c);
 	}
 
 	// number
 	if (strcont("0123456789.", c)) {
 		size_t start = i;
 		end_num(buff, i);
-		return { Token::t::NUMBER, stl_substr(buff, start, i) };
+		return Token(Token::t::NUMBER, stl_substr(buff, start, i));
 	}
 
 	// identifier
 	size_t start = i;
 	end_id(buff, i);
-	return { Token::t::IDENTIFIER , stl_substr(buff, start, i) };
+	return Token(Token::t::IDENTIFIER, stl_substr(buff, start, i));
 }
 
 // buffered read and tokenize on a line-by-line basis
-std::vector<struct Token> tokenize_stream(std::istream& in) {
+std::vector<Token> tokenize_stream(std::istream& in) {
 	std::deque<char> buff;
 
 	// fetch next line from stream
@@ -235,7 +235,7 @@ std::vector<struct Token> tokenize_stream(std::istream& in) {
 
 	std::vector<Token> ret;
 
-	struct Token t;
+	Token t;
 
 	size_t i = 0; // working index for lex
 	size_t pos = 0; // used for getting line numbers for error messages
@@ -253,8 +253,11 @@ std::vector<struct Token> tokenize_stream(std::istream& in) {
 			buff.clear();
 			i = 0;
 			read();
-			if (buff.empty())
+			if (buff.empty()) {
+				ret.emplace_back(Token(Token::t::OPERATOR, "eof"));
+				ret.back().pos = pos;
 				return ret;
+			}
 
 		} else if (t.type == Token::t::ERROR) {
 			return std::vector<Token>({ t });

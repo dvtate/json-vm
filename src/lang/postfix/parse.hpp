@@ -11,7 +11,8 @@
 
 #include "lex.hpp"
 
-struct AST {
+class AST {
+public:
 	enum NodeType {
 		STATEMENT,   // marked with semicolon so that it's not used as an operand
 		STATEMENT_SERIES,
@@ -46,6 +47,9 @@ struct AST {
 		PAREN_EXPR, // temporary, used to add clarity to macro calls
 		OPERATOR,  // un-parsed operator
 
+		DECLARATION,
+
+		INVALID,
 	} type;
 
 	Token token;
@@ -57,10 +61,15 @@ struct AST {
 	// 0 : unknown volatility
 	// 1 : known static
 	signed char volatility : 4;
+
+
+	AST() = default;
+	AST(const NodeType type, const Token token):
+		type(type), token(token), members(), volatility(0) {}
+	AST(const NodeType type, const Token token, std::vector<AST>&& children):
+			type(type), token(token), members(children), volatility(0) {}
+
 };
-
-typedef struct AST AST;
-
 class SyntaxError {
 public:
 	Token token;
@@ -71,7 +80,9 @@ public:
 };
 
 
-struct AST parse(const std::vector<struct Token>& tokens);
+AST parse(const std::vector<Token>& tokens);
 
+// convert AST to lisp
+std::string debug_AST(const AST& tree);
 
 #endif //JSON_LISP_PARSE_HPP
