@@ -169,19 +169,6 @@ static inline void reduce_operator(std::vector<AST>& stack, const size_t i) {
 	AST n = stack[i];
 	const std::string op = n.token.token;
 
-	// comma series
-	if (op == ",") {
-		if (stack.size() - i != 2)
-			throw std::vector<SyntaxError>{SyntaxError(n.token, "invalid comma")};
-
-		// concat comma series
-		if ((i - 1) && stack[i - 1].type == AST::NodeType::COMMA_SERIES) {
-
-		}
-		return;
-
-	}
-
 	// return kv pair
 	if (op == ":") {
 		if (stack.size() - i != 2 || stack.size() < 3)
@@ -302,11 +289,15 @@ static inline bool reduce_containers(std::vector<AST>& stack) {
 			stack.pop_back();
 			const AST n = stack.back();
 			stack.pop_back();
-			if (n.type == AST::NodeType::COMMA_SERIES)
+
+			// list.members = comma separated values
+			if ((n.type == AST::NodeType::OPERATION && n.token.token == ",") || n.type == AST::NodeType::COMMA_SERIES)
 				n.type = AST::NodeType::LIST;
 			else
 				n = AST(AST::NodeType::LIST, stack.back().token, std::vector<AST>({n}));
+
 			stack.back() = n;
+			return true;
 		}
 
 		// handle parens
@@ -321,6 +312,10 @@ static inline bool reduce_containers(std::vector<AST>& stack) {
 
 			stack.pop_back();
 			const AST e = stack.back();
+			stack.pop_back();
+			stack.back().type = AST::NodeType::PAREN_EXPR;
+			stack.back().members.emplace_back(e);
+			return true;
 		}
 
 		// handle macros
@@ -330,12 +325,28 @@ static inline bool reduce_containers(std::vector<AST>& stack) {
 					SyntaxError(stack[i].token, "unclosed `(:`"),
 					SyntaxError(stack.back().token, "unexpected `]`"),
 				};
-
+			stack.pop_back();
 			for (int m = i; m < stack.size(); m++)
 				stack[i].members.emplace_back(stack[m])
-			
+			while (stack.size() > i + 1)
+				stack.pop_back();
+			stack.back().type == AST::NodeType::MACRO;
+
+			return true;
 		}
 	}
+
+	return false;
+}
+
+// macro calls			abc(123)
+// bracket operator 	abc[123]
+//
+static inline bool reduce_invocations(std::vector<AST>& stack) {
+	/* macro calls
+	 * takes something that evaluates to a macro
+	 * macro literal, paren expr,
+	 */
 }
 
 
